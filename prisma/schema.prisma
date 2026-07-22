@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Anggota {
+  id        String   @id @default(cuid())
+  nama      String
+  kelas     String
+  jabatan   String
+  status    String      @default("Aktif")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  kehadiran Kehadiran[]
+}
+
+model Pertemuan {
+  id        String      @id @default(cuid())
+  tanggal   DateTime    // Disimpan sebagai Date
+  sesi      String      // "Pagi" | "Sore"
+  catatan   String?
+  kehadiran Kehadiran[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([tanggal, sesi])
+}
+
+model Kehadiran {
+  id          String    @id @default(cuid())
+  pertemuanId String
+  anggotaId   String
+  status      String    // "H", "I", "A" (atau kosong)
+  
+  pertemuan   Pertemuan @relation(fields: [pertemuanId], references: [id], onDelete: Cascade)
+  anggota     Anggota   @relation(fields: [anggotaId], references: [id], onDelete: Cascade)
+
+  @@unique([pertemuanId, anggotaId])
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
