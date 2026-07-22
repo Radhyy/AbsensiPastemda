@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Calendar
 import AbsensiClient from "@/components/AbsensiClient";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import { getAtauBuatPertemuan, catatKehadiranAnggota } from "@/app/actions/absensi";
+import { getAtauBuatPertemuan } from "@/app/actions/absensi";
 import { getSemuaAnggota } from "@/app/actions/anggota";
 
 export default async function Absensi({
