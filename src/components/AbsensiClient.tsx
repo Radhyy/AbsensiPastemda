@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, CheckCircle2, AlertCircle, Edit2, Users, FileCheck2 } from 'lucide-react';
+import { Calendar, CheckCircle2, AlertCircle, Edit2, Users, FileCheck2, Search } from 'lucide-react';
 import { simpanAbsensi, mulaiAbsensi } from '@/app/actions/absensi';
 
 type Anggota = {
