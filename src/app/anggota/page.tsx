@@ -14,8 +14,18 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { getSemuaAnggota } from "@/app/actions/anggota";
 
-export default async function DataAnggota() {
+export default async function DataAnggota({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
+  const sp = await searchParams;
+  const search = sp.search || '';
+
   const anggotaList = await getSemuaAnggota();
+  const filteredList = search 
+    ? anggotaList.filter(a => a.nama.toLowerCase().includes(search.toLowerCase()))
+    : anggotaList;
 
   return (
     <div className="flex h-screen bg-black text-white font-sans overflow-hidden">
@@ -29,14 +39,16 @@ export default async function DataAnggota() {
           {/* Top Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="relative group flex-1 sm:w-72">
+              <form action="/anggota" method="GET" className="relative group flex-1 sm:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-yellow transition-colors" size={18} />
                 <input 
-                  type="text" 
+                  type="text"
+                  name="search"
+                  defaultValue={search} 
                   placeholder="Cari nama anggota..." 
                   className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow/50 transition-all"
                 />
-              </div>
+              </form>
               <button className="flex items-center gap-2 bg-[#141414] border border-[#2a2a2a] px-4 py-2.5 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:border-brand-yellow/50 transition-all">
                 <Filter size={16} />
                 Filter
@@ -60,14 +72,14 @@ export default async function DataAnggota() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#2a2a2a]">
-                  {anggotaList.length === 0 ? (
+                  {filteredList.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-8 text-center text-gray-500">
-                        Belum ada data anggota. Silakan tambah anggota baru.
+                        {search ? `Tidak ada anggota dengan nama "${search}"` : 'Belum ada data anggota. Silakan tambah anggota baru.'}
                       </td>
                     </tr>
                   ) : (
-                    anggotaList.map((row, index) => (
+                    filteredList.map((row, index) => (
                       <tr key={row.id} className="hover:bg-[#1a1a1a] transition-colors group">
                         <td className="py-4 px-6 text-gray-500 text-sm font-mono">{String(index + 1).padStart(2, '0')}</td>
                         <td className="py-4 px-6">

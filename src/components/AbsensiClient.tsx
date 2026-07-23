@@ -35,6 +35,7 @@ export default function AbsensiClient({
   // State untuk menentukan apakah sedang dalam mode edit/input atau mode lihat (summary)
   const [isEditing, setIsEditing] = useState(!pertemuan);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     setKehadiranState(
@@ -137,6 +138,22 @@ export default function AbsensiClient({
 
   return (
     <div className="pb-24">
+      {/* Search Bar for Absensi */}
+      {isEditing && (
+        <div className="mb-4">
+          <div className="relative group flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-brand-yellow transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Cari nama anggota..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#141414] border border-[#2a2a2a] rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow/50 transition-all text-white"
+            />
+          </div>
+        </div>
+      )}
+
       {!isEditing ? (
         <div className="mt-4 bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-8 max-w-3xl mx-auto shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#1f1f1f]">
@@ -186,7 +203,7 @@ export default function AbsensiClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f1f1f]">
-                {anggotaList.map((anggota, index) => {
+                {anggotaList.filter(a => a.nama.toLowerCase().includes(searchQuery.toLowerCase())).map((anggota, index) => {
                   const status = kehadiranState.find(k => k.anggotaId === anggota.id)?.status || 'A';
                   return (
                     <tr key={anggota.id} className="hover:bg-[#141414]/50 transition-colors group">
