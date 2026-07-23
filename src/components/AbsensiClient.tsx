@@ -42,9 +42,9 @@ export default function AbsensiClient({
       pertemuan 
         ? anggotaList.map(a => {
             const existing = pertemuan.kehadiran.find((k: any) => k.anggotaId === a.id);
-            return existing ? existing : { anggotaId: a.id, status: 'A' };
+            return existing ? existing : { anggotaId: a.id, status: '' };
           })
-        : anggotaList.map(a => ({ anggotaId: a.id, status: 'A' }))
+        : anggotaList.map(a => ({ anggotaId: a.id, status: '' }))
     );
     // Jika ganti tanggal dan pertemuan ada, kembali ke mode lihat. Jika kosong, ke mode input.
     setIsEditing(!pertemuan);
@@ -64,7 +64,8 @@ export default function AbsensiClient({
     setKehadiranState(prev => {
       const exists = prev.find(k => k.anggotaId === anggotaId);
       if (exists) {
-        return prev.map(k => k.anggotaId === anggotaId ? { ...k, status } : k);
+        const newStatus = exists.status === status ? '' : status;
+        return prev.map(k => k.anggotaId === anggotaId ? { ...k, status: newStatus } : k);
       }
       return [...prev, { anggotaId, status }];
     });
@@ -73,11 +74,12 @@ export default function AbsensiClient({
   const handleSimpan = async () => {
     setLoading(true);
     try {
+      const payload = kehadiranState.filter(k => k.status !== '');
       if (pertemuan) {
-        await simpanAbsensi(pertemuan.id, kehadiranState);
+        await simpanAbsensi(pertemuan.id, payload);
       } else {
         const p = await mulaiAbsensi(tanggal, isClientSession);
-        await simpanAbsensi(p.id, kehadiranState);
+        await simpanAbsensi(p.id, payload);
       }
       setIsEditing(false);
       setIsCreatingNew(false);
@@ -204,7 +206,7 @@ export default function AbsensiClient({
               </thead>
               <tbody className="divide-y divide-[#1f1f1f]">
                 {anggotaList.filter(a => a.nama.toLowerCase().includes(searchQuery.toLowerCase())).map((anggota, index) => {
-                  const status = kehadiranState.find(k => k.anggotaId === anggota.id)?.status || 'A';
+                  const status = kehadiranState.find(k => k.anggotaId === anggota.id)?.status || '';
                   return (
                     <tr key={anggota.id} className="hover:bg-[#141414]/50 transition-colors group">
                       <td className="py-4 px-6 text-sm text-gray-500 font-mono">
@@ -230,30 +232,30 @@ export default function AbsensiClient({
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleStatusChange(anggota.id, 'H')}
-                            className={`w-8 h-8 rounded-full text-xs font-bold transition-all flex items-center justify-center ${
-                              status === 'H' 
-                                ? 'bg-green-500/20 text-green-500 border border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.2)]' 
-                                : 'bg-[#1f1f1f] text-gray-500 border border-[#333] hover:border-gray-400'
+                            className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-sm transition-all border ${
+                              status === 'H'
+                                ? 'bg-green-500 text-black border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                                : 'bg-[#141414] text-gray-500 border-[#333] hover:border-green-500/50 hover:text-green-500'
                             }`}
                           >
                             H
                           </button>
                           <button
                             onClick={() => handleStatusChange(anggota.id, 'I')}
-                            className={`w-8 h-8 rounded-full text-xs font-bold transition-all flex items-center justify-center ${
-                              status === 'I' 
-                                ? 'bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/50 shadow-[0_0_10px_rgba(250,204,21,0.2)]' 
-                                : 'bg-[#1f1f1f] text-gray-500 border border-[#333] hover:border-gray-400'
+                            className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-sm transition-all border ${
+                              status === 'I'
+                                ? 'bg-brand-yellow text-black border-brand-yellow shadow-[0_0_15px_rgba(250,204,21,0.3)]'
+                                : 'bg-[#141414] text-gray-500 border-[#333] hover:border-brand-yellow/50 hover:text-brand-yellow'
                             }`}
                           >
                             I
                           </button>
                           <button
                             onClick={() => handleStatusChange(anggota.id, 'A')}
-                            className={`w-8 h-8 rounded-full text-xs font-bold transition-all flex items-center justify-center ${
-                              status === 'A' 
-                                ? 'bg-red-500/20 text-red-500 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]' 
-                                : 'bg-[#1f1f1f] text-gray-500 border border-[#333] hover:border-gray-400'
+                            className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-sm transition-all border ${
+                              status === 'A'
+                                ? 'bg-red-500 text-black border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                                : 'bg-[#141414] text-gray-500 border-[#333] hover:border-red-500/50 hover:text-red-500'
                             }`}
                           >
                             A
